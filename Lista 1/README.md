@@ -18,7 +18,7 @@ Celem projektu jest stworzenie zestawu narzędzi do strumieniowego przetwarzania
 ## Instrukcja uruchomienia
 Wymagane jest środowisko Python 3.x.
 
-**1. Uruchomienie programu podstawowego (witającego):**
+**1. Uruchomienie programu podstawowego:**
 Z poziomu głównego katalogu repozytorium wpisz w terminalu:
 ```bash
 type data\calineczka.txt | python src\parser.py | python src\function_b.py
