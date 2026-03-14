@@ -1,0 +1,47 @@
+Tytuł: Testowa Książka
+Autor: Jan Kowalski
+
+
+To jest pierwsze zdanie. A to jest drugie zdanie, które ma jeden przecinek, ale też drugi przecinek! 
+Czy to jest pytanie? Tak, to jest, a nawet drugie zdanie złożone.
+
+Akapit oddzielony pustą linią! To już szóste zdanie.
+
+-----
+Informacje o wydaniu.
+Tego ma nie być widać.
+
+
+Poprawne wyniki:
+
+Parser:
+To jest pierwsze zdanie. A to jest drugie zdanie, które ma jeden przecinek, ale też drugi przecinek! 
+Czy to jest pytanie? Tak, to jest.
+
+Akapit oddzielony pustą linią! To już szóste zdanie.
+
+
+
+Funkcje:
+
+A ->
+
+B -> 183
+
+C ->
+
+D ->
+
+E ->
+
+F -> A to jest drugie zdanie, które ma jeden przecinek, ale też drugi przecinek!
+
+G -> 
+
+H -> A to jest drugie zdanie, które ma jeden przecinek, ale też drugi przecinek! Czy to jest pytanie? Akapit oddzielony pustą linią!
+
+I -> To jest pierwsze zdanie. A to jest drugie zdanie, które ma jeden przecinek, ale też drugi przecinek! 
+Czy to jest pytanie? Tak, to jest.
+
+J ->
+
