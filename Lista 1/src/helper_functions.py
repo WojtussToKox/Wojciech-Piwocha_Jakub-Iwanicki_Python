@@ -84,7 +84,7 @@ def countWords(sentence):
             if not in_word:
                 count += 1
                 in_word = True
-        else:
+        elif isWordSeparator(char) or isWhiteSpace(char):
             in_word = False
     return count
 
