@@ -77,6 +77,14 @@ def getNextWord(sentence):
 
 
 def countWords(sentence):
-    # TO_DO
-    return 0
+    count = 0
+    in_word = False
+    for char in sentence:
+        if isLetter(char):
+            if not in_word:
+                count += 1
+                in_word = True
+        elif isWordSeparator(char) or isWhiteSpace(char):
+            in_word = False
+    return count
 
