@@ -1,7 +1,7 @@
 import sys
 
 
-def clean_line(text):
+def cleanLine(text):
     # Usunięcie białych znaków
     text = text.strip()
 
@@ -33,7 +33,7 @@ def main():
                 sys.stdout.write(buffer)
             break
 
-        cleaned = clean_line(line)
+        cleaned = cleanLine(line)
 
         # 2. info o wydaniu -> brak preambuły
         if cleaned == "-----":
