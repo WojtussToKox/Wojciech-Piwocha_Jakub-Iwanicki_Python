@@ -35,5 +35,5 @@ def main():
         sys.stderr.write(f"Krytyczny błąd programu f: {e}\n")
 
 
-if __name__  == "__main__":
+if __name__ == "__main__":
     main()

@@ -2,7 +2,7 @@ import sys
 import helper_functions as helpFun
 
 
-def count_non_white_chars():
+def countNonWhiteChars():
     char_count = 0
     c = sys.stdin.read(1)
 
@@ -22,7 +22,7 @@ def count_non_white_chars():
 def main():
     try:
         # 1. Obliczenie
-        result = count_non_white_chars()
+        result = countNonWhiteChars()
 
         # 2. Wypisanie
         sys.stdout.write(str(result) + '\n')

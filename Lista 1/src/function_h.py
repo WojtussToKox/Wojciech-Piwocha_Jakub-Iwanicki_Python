@@ -28,5 +28,5 @@ def main():
         sys.stderr.write(f"Krytyczny błąd programu h: {e}\n")
 
 
-if __name__  == "__main__":
+if __name__ == "__main__":
     main()
