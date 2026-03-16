@@ -1,6 +1,6 @@
 import sys
 
-def count_paragraphs():
+def countParagraphs():
     try:
         paragraphs = 0
         in_paragraph = False
@@ -26,7 +26,7 @@ def main():
         sys.stdin.reconfigure(encoding='utf-8')
         sys.stdout.reconfigure(encoding='utf-8')
 
-        result = count_paragraphs()
+        result = countParagraphs()
         sys.stdout.write(str(result) + '\n')
     except Exception as e:
         sys.stderr.write(f"Krytyczny błąd programu a: {e}\n")
