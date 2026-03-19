@@ -24,19 +24,19 @@ Akapit oddzielony pustą linią! To już szóste zdanie.
 
 Funkcje:
 
-A ->
+A -> 2
 
 B -> 183
 
-C ->
+C -> 0%
 
-D ->
+D -> A to jest drugie zdanie, które ma jeden przecinek, ale też drugi przecinek!
 
-E ->
+E -> A to jest drugie zdanie, które ma jeden przecinek, ale też drugi przecinek!
 
 F -> A to jest drugie zdanie, które ma jeden przecinek, ale też drugi przecinek!
 
-G -> 
+G -> A to jest drugie zdanie, które ma jeden przecinek, ale też drugi przecinek!
 
 H -> A to jest drugie zdanie, które ma jeden przecinek, ale też drugi przecinek! Czy to jest pytanie? Akapit oddzielony pustą linią!
 
