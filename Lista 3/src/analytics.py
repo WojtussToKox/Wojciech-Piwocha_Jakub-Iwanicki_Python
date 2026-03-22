@@ -6,6 +6,13 @@ import os
 
 LOG_KEYS = ["ts", "uid", "host_orig", "port_orig", "host_resp", "port_resp", "method", "host", "uri", "status_code"]
 
+# Zadanie 2
+def sortLog(log, index):
+    try:
+        return sorted(log, key=lambda x: x[index])
+    except IndexError:
+        print(f"Błąd! Index {index} nie istnieje w rekordzie logu")
+        return log
 
 # Zadanie 7
 def getTopIps(log, n=10):
