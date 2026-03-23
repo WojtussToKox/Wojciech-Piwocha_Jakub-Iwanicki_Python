@@ -16,8 +16,10 @@ def getEntriesByAddr(log, addr):
             is_valid_ip = all(p.isdigit() and 0<=int(p)<=255 for p in parts)
             if not is_valid_ip:
                 print(f"Warning! {addr} nie jest poprawnym adresem IP!")
+                return []
         elif addr.count(".") > 0:
             print(f"Warning! {addr} ma błędną liczbę segmentów!")
+            return []
     # Filtrujemy po adresie klienta/hosta serwera
     return [entry for entry in log if entry[2] == addr or entry[7] == addr]
 
@@ -32,7 +34,7 @@ def getFailedReads(log, merge=False):
     return err_4xx, err_5xx
 
 # Zadanie 6
-def genEntriesByExtension(log, ext):
+def getEntriesByExtension(log, ext):
     results = []
     # Ujednolicamy rozszerzenie(zacyna sie od kropki i jest małymi literami)
     ext = ext.lower() if ext.startswith('.') else f".{ext.lower()}"
