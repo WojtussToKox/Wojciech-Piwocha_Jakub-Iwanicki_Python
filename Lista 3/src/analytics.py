@@ -242,10 +242,8 @@ def analyzeLog(log):
     status_classes = countStatusClasses(log)
 
     # Wymagane
-    # Najczęstsze IP/URI
-    top_ips = getTopIps(log, n=10)
-    top_uris = getTopUris(log, n=10)
-
+    top_ips = getTopIps(log, n=10)     # Najczęstsze IP
+    top_uris = getTopUris(log, n=10)    # Najczęstsze URI
     method_distribution = countByMethod(log) # Rozkład metod
     error_count = status_classes.get("4xx", 0) + status_classes.get("5xx", 0) # Liczba błędów
 
