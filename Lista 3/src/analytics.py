@@ -3,9 +3,16 @@ from collections import defaultdict
 from urllib.parse import urlparse
 import os
 
-
 LOG_KEYS = ["ts", "uid", "host_orig", "port_orig", "host_resp", "port_resp", "method", "host", "uri", "status_code"]
 
+# Zadanie 2
+def sortLog(log, index):
+    try:
+        # Wartość pod indeksem jest kluczem do sortowania
+        return sorted(log, key=lambda x: x[index])
+    except IndexError:
+        print(f"Błąd! Index {index} nie istnieje w rekordzie logu")
+        return log
 
 # Zadanie 7
 def getTopIps(log, n=10):
@@ -18,6 +25,15 @@ def getTopIps(log, n=10):
     # 3. Metoda most_common(n) zwraca posortowaną listę krotek [(ip1, ilosc1), (ip2, ilosc2), ...]
     return counted_ip.most_common(n)
 
+# Zadanie 8
+def getUniqueMethods(log):
+    # Tworzymy w locie set, a nastepnie rzutujemy go na liste
+    return list({entry[6] for entry in log})
+
+# Zadanie 10
+def countByMethod(log):
+    # Przekazujemy do licznika metody jedna po drugiej, a następnie rzutujemy Counter na słownik
+    return dict(Counter(entry[6] for entry in log))
 
 # Zadanie 11
 def getTopUris(log, n=10):
@@ -30,6 +46,23 @@ def getTopUris(log, n=10):
     # 3. Z listy krotek [(uri1, ilosc1), (uri2, ilosc2), ...] wyciągamy tylko Uri
     return [uri for uri, count in counted_uri.most_common(n)]
 
+# Zadanie 12
+def countStatusClasses(log):
+    # Inicjalizujemy licznik każdej grupy
+    classes = {"2xx": 0, "3xx": 0, "4xx": 0, "5xx": 0}
+
+    for entry in log:
+        # Pobieramy kod statusu i przypisujemy do odpowiedniej szufladki
+        code = entry[9]
+        if 200 <= code < 300:
+            classes["2xx"] += 1
+        elif 300 <= code < 400:
+            classes["3xx"] += 1
+        elif 400 <= code < 500:
+            classes["4xx"] += 1
+        elif 500 <= code < 600:
+            classes["5xx"] += 1
+    return classes
 
 # Zadanie 13
 def entryToDict(entry):
@@ -199,3 +232,38 @@ def get_extension_stats(log):
 
     # Counter policzy nam wszystkie elementy, a dict() zamieni wynik na zwykły słownik
     return dict(Counter(extensions))
+
+# Zadanie 20
+def analyzeLog(log):
+    # Pusty plik
+    if not log:
+        return {}
+
+    status_classes = countStatusClasses(log)
+
+    # Wymagane
+    # Najczęstsze IP/URI
+    top_ips = getTopIps(log, n=10)
+    top_uris = getTopUris(log, n=10)
+
+    method_distribution = countByMethod(log) # Rozkład metod
+    error_count = status_classes.get("4xx", 0) + status_classes.get("5xx", 0) # Liczba błędów
+
+    # Własne
+    total_requests = len(log) # Liczba wszystkich zapytań
+    unique_hosts = len({entry[2] for entry in log}) # Liczba unikalnych hostów
+    # Zakres czasu z formatem na (D-M-R)
+    time_range = {
+        "first": min(entry[0] for entry in log).strftime('%d-%m-%Y %H:%M:%S'),
+        "last": max(entry[0] for entry in log).strftime('%d-%m-%Y %H:%M:%S'),
+    }
+
+    return {
+        "top_ips": top_ips,
+        "top_uris": top_uris,
+        "method_distribution": method_distribution,
+        "error_count": error_count,
+        "total_requests": total_requests,
+        "unique_hosts": unique_hosts,
+        "time_range": time_range,
+    }
