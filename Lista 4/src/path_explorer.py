@@ -1,6 +1,17 @@
 import os
 import sys
 
+# Sprawdzenie czy plik jest wykonwyalny zgodnie z systemem
+def isExecutable(full_path):
+    if not(os.path.isfile(full_path)):
+        return False
+
+    # Logika dla Windows(nt)
+    if os.name == 'nt':
+        return full_path.lower().endswith(('.exe', '.bat', '.cmd'))
+
+    # Logika dla reszty
+    return os.access(full_path, os.X_OK)
 
 # Wypisywanie każdego katalogu w osobnej lini
 def listDirs():
@@ -10,19 +21,6 @@ def listDirs():
 
     for d in dirs:
         print(d)
-
-# Sprawdzenie czy plik jest wykonwyalny zgodnie z systemem
-def isExecutable(full_path):
-    if not(os.path.isfile(full_path)):
-        return False
-
-    # Logika dla Windows(nt)
-    if os.name == 'nt':
-        extensions = ('.exe', '.bat', '.cmd')
-        return full_path.lower().endswith(extensions)
-    # Logika dla reszty
-    else:
-        return os.access(full_path, os.X_OK)
 
 # Wypisywanie katalogów z PATH wraz z plikami wykonwyalnymi
 def listExecutables():
