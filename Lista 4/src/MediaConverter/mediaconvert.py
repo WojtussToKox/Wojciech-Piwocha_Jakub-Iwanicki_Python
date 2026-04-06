@@ -1,6 +1,3 @@
-"""
-Glowny skrypt - konwersja plikow multimedialnych za pomoca ffmpeg/ImageMagick
-"""
 import sys
 import os
 import subprocess
