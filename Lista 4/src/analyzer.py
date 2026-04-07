@@ -30,15 +30,17 @@ def analyzeFile(filepath):
     # most_common(1) zwraca listę [(znak, count)]
     if content:
         char_counter = Counter(content)
-        most_common_char, _ = char_counter.most_common(1)[0]
+        most_common_char, most_common_char_count = char_counter.most_common(1)[0]
     else:
         most_common_char = ""
+        most_common_char_count = 0
 
     if words:
         word_counter = Counter(w.lower() for w in words)
-        most_common_word, _ = word_counter.most_common(1)[0]
+        most_common_word, most_common_word_count = word_counter.most_common(1)[0]
     else:
         most_common_word = ""
+        most_common_word_count = 0
 
     return {
         "filepath": filepath,
@@ -46,7 +48,9 @@ def analyzeFile(filepath):
         "total_words": total_words,
         "total_lines": total_lines,
         "most_common_char": most_common_char,
+        "most_common_char_count": most_common_char_count,
         "most_common_word": most_common_word,
+        "most_common_word_count": most_common_word_count,
     }
 
 def main():

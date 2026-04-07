@@ -70,13 +70,12 @@ def main():
     total_words = sum(r["total_words"] for r in results)
     total_lines = sum(r["total_lines"] for r in results)
 
-    # By wybrac najcżestsze słowo/znak globalnie, ważymy wyniki per rozmiar
     all_chars = Counter()
     all_words = Counter()
 
     for r in results:
-        all_chars[r["most_common_char"]] += r["total_chars"]
-        all_words[r["most_common_word"]] += r["total_words"]
+        all_chars[r["most_common_char"]] += r["most_common_char_count"]
+        all_words[r["most_common_word"]] += r["most_common_word_count"]
 
     most_common_char = all_chars.most_common(1)[0][0] if all_chars else ""
     most_common_word = all_words.most_common(1)[0][0] if all_words else ""

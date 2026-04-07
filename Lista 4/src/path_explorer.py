@@ -14,20 +14,21 @@ def isExecutable(full_path):
     # Logika dla reszty
     return os.access(full_path, os.X_OK)
 
+# Pobiera PATH i dzieli na osobne ścieżki
 def getPathDirs():
     path_var = os.environ.get("PATH", "")
     if not path_var:
         return []
     return path_var.split(os.pathsep)
 
-# Wypisywanie każdego katalogu w osobnej lini
+# Wypisuje każdy katalog w osobnej lini
 def listDirs():
     dirs = getPathDirs()
 
     for d in dirs:
         print(d)
 
-# Wypisywanie katalogów z PATH wraz z plikami wykonwyalnymi
+# Wypisuje katalogi z PATH wraz z plikami wykonwyalnymi
 def listExecutables():
     dirs = getPathDirs()
 
@@ -60,6 +61,7 @@ def main():
         description="Operacje na zmiennej PATH"
     )
 
+    # Tworzymy grupe która wymusza wybór tylko jednej opcji naraz
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
         "--dirs",
