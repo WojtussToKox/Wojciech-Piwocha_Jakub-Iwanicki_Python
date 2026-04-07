@@ -1,9 +1,10 @@
+# ZAD 2
+import argparse
 import os
-import sys
 
 # Sprawdzenie czy plik jest wykonwyalny zgodnie z systemem
 def isExecutable(full_path):
-    if not(os.path.isfile(full_path)):
+    if not os.path.isfile(full_path):
         return False
 
     # Logika dla Windows(nt)
@@ -13,19 +14,22 @@ def isExecutable(full_path):
     # Logika dla reszty
     return os.access(full_path, os.X_OK)
 
+def getPathDirs():
+    path_var = os.environ.get("PATH", "")
+    if not path_var:
+        return []
+    return path_var.split(os.pathsep)
+
 # Wypisywanie każdego katalogu w osobnej lini
 def listDirs():
-    path_var = os.environ.get("PATH", "")
-
-    dirs = path_var.split(os.pathsep)
+    dirs = getPathDirs()
 
     for d in dirs:
         print(d)
 
 # Wypisywanie katalogów z PATH wraz z plikami wykonwyalnymi
 def listExecutables():
-    path_var = os.environ.get("PATH", "")
-    dirs = path_var.split(os.pathsep)
+    dirs = getPathDirs()
 
     for d in dirs:
         if not d:
@@ -51,28 +55,30 @@ def listExecutables():
         except Exception as e:
             print(f" (błąd: {e})")
 
-
-def printHelp():
-    print("Błąd: Nie podano poprawnej opcji.")
-    print("Użycie:")
-    print("  python zad2.py --dirs         -> Wypisuje katalogi z PATH")
-    print("  python zad2.py --executables  -> Wypisuje katalogi + pliki wykonywalne")
-
 def main():
-    if len(sys.argv) < 2:
-        printHelp()
-        sys.exit(1)
+    parser = argparse.ArgumentParser(
+        description="Operacje na zmiennej PATH"
+    )
 
-    option = sys.argv[1]
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument(
+        "--dirs",
+        action="store_true",
+        help="Wypisuje katalogi z PATH"
+    )
 
-    if option == "--dirs":
+    group.add_argument(
+        "--executables",
+        action="store_true",
+        help="Wypisuje katalogi z PATH + pliki wykonywalne"
+    )
+
+    args = parser.parse_args()
+
+    if args.dirs:
         listDirs()
-    elif option == "--executables":
+    elif args.executables:
         listExecutables()
-    else:
-        print(f"Nieznana opcja: {option}")
-        printHelp()
-        sys.exit(1)
 
 if __name__ == "__main__":
     main()

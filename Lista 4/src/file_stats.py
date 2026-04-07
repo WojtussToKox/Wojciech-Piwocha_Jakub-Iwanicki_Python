@@ -1,5 +1,5 @@
 # ZAD4 PART2
-
+import argparse
 import os
 import sys
 import json
@@ -7,14 +7,14 @@ import subprocess
 from collections import Counter
 
 # Zwraca posortowaną liste ścieżek do plikow txt w danym katalogu
-def get_text_files(directory):
-    textFiles = []
+def getTextFiles(directory):
+    text_files = []
     for entry in os.scandir(directory):
         if entry.is_file() and entry.name.endswith(".txt"):
-            textFiles.append(entry.path)
-    return sorted(textFiles)
+            text_files.append(entry.path)
+    return sorted(text_files)
 
-def run_analyzer(filepath):
+def runAnalyzer(filepath):
     result = subprocess.run(
         [sys.executable, os.path.join(os.path.dirname(__file__), "analyzer.py")],
         input=filepath,
@@ -34,17 +34,20 @@ def run_analyzer(filepath):
         return None
 
 def main():
-    if len(sys.argv) < 2:
-        print("Użycie: python file_stats.py path/to/file")
+    parser = argparse.ArgumentParser(
+        description="Uruchamia analyze.py dla każdego pliku txt w katalogu i wypisuje statystyki"
+    )
+    parser.add_argument(
+        "directory",
+        help="Ścieżka do katalogu z plikami txt"
+    )
+    args = parser.parse_args()
+
+    if not os.path.isdir(args.directory):
+        print(f"Błąd: '{args.directory}' nie jest katalogiem")
         sys.exit(1)
 
-    directory = sys.argv[1]
-
-    if not os.path.isdir(directory):
-        print(f"Błąd: '{directory}' nie jest katalogiem")
-        sys.exit(1)
-
-    files = get_text_files(directory)
+    files = getTextFiles(args.directory)
 
     if not files:
         print("Brak plików .txt w podanym katalogu")
@@ -53,7 +56,7 @@ def main():
     # Uruchamiamy analyze dla kazdego pliku i zbieramy wyniki do listy słowników
     results = []
     for filepath in files:
-        data = run_analyzer(filepath)
+        data = runAnalyzer(filepath)
         if data:
             results.append(data)
 
@@ -62,28 +65,28 @@ def main():
         sys.exit(1)
 
     # Obliczanie statystyk
-    totalFiles = len(results)
-    totalChars = sum(r["totalChars"] for r in results)
-    totalWords = sum(r["totalWords"] for r in results)
-    totalLines = sum(r["totalLines"] for r in results)
+    total_files = len(results)
+    total_chars = sum(r["total_chars"] for r in results)
+    total_words = sum(r["total_words"] for r in results)
+    total_lines = sum(r["total_lines"] for r in results)
 
     # By wybrac najcżestsze słowo/znak globalnie, ważymy wyniki per rozmiar
-    allChars = Counter()
-    allWords = Counter()
+    all_chars = Counter()
+    all_words = Counter()
 
     for r in results:
-        allChars[r["mostCommonChar"]] += r["totalChars"]
-        allWords[r["mostCommonWord"]] += r["totalWords"]
+        all_chars[r["most_common_char"]] += r["total_chars"]
+        all_words[r["most_common_word"]] += r["total_words"]
 
-    mostCommonChar = allChars.most_common(1)[0][0] if allChars else ""
-    mostCommonWord = allWords.most_common(1)[0][0] if allWords else ""
+    most_common_char = all_chars.most_common(1)[0][0] if all_chars else ""
+    most_common_word = all_words.most_common(1)[0][0] if all_words else ""
 
-    print(f"Liczba przeczytanych plików: {totalFiles}")
-    print(f"Sumaryczna liczba znaków:    {totalChars}")
-    print(f"Sumaryczna liczba słów:      {totalWords}")
-    print(f"Sumaryczna liczba wierszy:   {totalLines}")
-    print(f"Najczęstszy znak:            {repr(mostCommonChar)}")
-    print(f"Najczęstsze słowo:           {mostCommonWord}")
+    print(f"Liczba przeczytanych plików: {total_files}")
+    print(f"Sumaryczna liczba znaków:    {total_chars}")
+    print(f"Sumaryczna liczba słów:      {total_words}")
+    print(f"Sumaryczna liczba wierszy:   {total_lines}")
+    print(f"Najczęstszy znak:            {repr(most_common_char)}")
+    print(f"Najczęstsze słowo:           {most_common_word}")
 
 if __name__ == "__main__":
     main()

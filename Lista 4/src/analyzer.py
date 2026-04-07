@@ -1,10 +1,11 @@
 # ZAD4 PART1
+import argparse
 import sys
 import json
 from collections import Counter
 
 # Wczytuje plik i zwraca słownik ze stat.
-def analyze_file(filepath):
+def analyzeFile(filepath):
     try:
         with open(filepath, "r", encoding="utf-8") as f:
             content = f.read()
@@ -16,41 +17,46 @@ def analyze_file(filepath):
         sys.exit(1)
 
     # len na stringu liczy znaki Unicode
-    totalChars = len(content)
+    total_chars = len(content)
 
     # splitlines obsługuje różne zak. linii
     lines = content.splitlines()
-    totalLines = len(lines)
+    total_lines = len(lines)
 
     words = content.split()
-    totalWords = len(words)
+    total_words = len(words)
 
     # Counter zlicza wystąpienia każdego znaku
     # most_common(1) zwraca listę [(znak, count)]
     if content:
-        charCounter = Counter(content)
-        mostCommonChar, _ = charCounter.most_common(1)[0]
+        char_counter = Counter(content)
+        most_common_char, _ = char_counter.most_common(1)[0]
     else:
-        mostCommonChar = ""
+        most_common_char = ""
 
     if words:
-        wordCounter = Counter(w.lower() for w in words)
-        mostCommonWord, _ = wordCounter.most_common(1)[0]
+        word_counter = Counter(w.lower() for w in words)
+        most_common_word, _ = word_counter.most_common(1)[0]
     else:
-        mostCommonWord = ""
+        most_common_word = ""
 
     return {
         "filepath": filepath,
-        "totalChars": totalChars,
-        "totalWords": totalWords,
-        "totalLines": totalLines,
-        "mostCommonChar": mostCommonChar,
-        "mostCommonWord": mostCommonWord,
+        "total_chars": total_chars,
+        "total_words": total_words,
+        "total_lines": total_lines,
+        "most_common_char": most_common_char,
+        "most_common_word": most_common_word,
     }
 
 def main():
+    parser = argparse.ArgumentParser(
+        description="Analizuje statystycznie plik tekstowy. Czyta ścieżkę do pliku z stdin"
+    )
+    parser.parse_args()
+
     filepath = input().strip()
-    result = analyze_file(filepath)
+    result = analyzeFile(filepath)
 
     # ensure_ascii=False by polskie znaki nie były zamieniane
     print(json.dumps(result, ensure_ascii=False))

@@ -1,29 +1,37 @@
+import argparse
 import os
 import sys
 
 # ZAD 1
 def main():
-    # sys.argv[0] to nazwa skryptu, dlatego filtry zaczynają się od 1
-    filters = sys.argv[1:]
-    # Pobieramy pary (nazwa, wartość) zmiennych środowiskowych
-    env_vars = os.environ.items()
+    parser = argparse.ArgumentParser(
+        description="Wyświetla zmienne środowiskowe, opcjonalnie filtrując po nazwie."
+    )
 
-    if filters:
+    parser.add_argument(
+        "filters",
+        nargs="*",
+        help="Filtry nazw zmiennych (case-insensitive)."
+    )
+    args = parser.parse_args()
+
+    env_vars = sorted(os.environ.items())
+
+    if args.filters:
+        filters = [f.lower() for f in args.filters]
         result = []
         for name, value in env_vars:
-            for f in filters:
-                # Porównujemy obustronnie małymi literami
-                if f.lower() in name.lower():
-                    result.append((name, value))
-                    # Wystarczy że jeden filtr pasuje, nie sprawdzamy dalej
-                    break
+            if any(f in name.lower() for f in filters):
+                result.append((name, value))
     else:
         # Brak filtrów - bierzemy wszystkie zmienne
-        result = list(env_vars)
+        result = env_vars
 
-    # Sortujemy alfabetycznie po nazwie zmiennej
-    for name, value in sorted(result, key=lambda x: x[0].lower()):
-        print(f'{name}: {value}')
+    if not result and args.filters:
+        print(f"Brak zmienny pasujących do filtrów: {', '.join(args.filters)}")
+    else:
+        for name, value in result:
+            print(f"{name}: {value}")
 
 
 if __name__ == '__main__':
