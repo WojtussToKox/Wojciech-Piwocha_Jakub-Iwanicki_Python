@@ -29,8 +29,11 @@ def analyzeFile(filepath):
     # Counter zlicza wystąpienia każdego znaku
     # most_common(1) zwraca listę [(znak, count)]
     if content:
-        char_counter = Counter(content)
-        most_common_char, most_common_char_count = char_counter.most_common(1)[0]
+        char_counter = Counter(ch for ch in content if not ch.isspace())
+        if char_counter:
+            most_common_char, most_common_char_count = char_counter.most_common(1)[0]
+        else:
+            most_common_char, most_common_char_count = "", 0
     else:
         most_common_char = ""
         most_common_char_count = 0
