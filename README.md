@@ -9,18 +9,40 @@
 ## 🎯 Cel projektu
 Niniejsze repozytorium zawiera zbiór rozwiązań zadań realizowanych w ramach przedmiotu *Języki Skryptowe*. Projekt ma na celu praktyczne opanowanie programowania w języku Python oraz naukę współpracy przy użyciu systemu kontroli wersji Git i platformy GitHub.
 
-Repozytorium jest rozwijane iteracyjnie i zawiera rozwiązania z kolejnych list zadań:
-* **Lista 1:** Strumieniowe przetwarzanie tekstu (potoki wejścia/wyjścia), budowanie abstrakcji bez użycia typów nieskalarnych (list, słowników, zbiorów) oraz bez wyrażeń regularnych.
+## 📁 Struktura Repozytorium
 
-## 📁 Struktura repozytorium
-Projekt został zorganizowany w następujący sposób
-* `src/` - kody źródłowe wszystkich programów i skryptów w Pythonie.
-* `tests/` - proste testy weryfikujące poprawność działania kluczowych funkcji.
-* `docs/` - dokumentacja projektu, notatki oraz treści zadań (PDF).
-* `data/` - przykładowe dane wejściowe (np. pliki tekstowe `.txt` z książkami do analizy).
-* `requirements.txt` - lista wymaganych pakietów i zależności środowiska.
+Projekt został podzielony na katalogi odpowiadające poszczególnym listom zadań. Każda z list zawiera kod źródłowy (`src/`), dane testowe (`data/`, `tests/`) oraz dokumentację/treść zadań (`docs/`).
 
-## 🚀 Instrukcja uruchomienia
+### [Lista 2](./Lista%202) - Podstawy Pythona i przetwarzanie tekstu
+Katalog zawiera zestaw podstawowych funkcji implementujących różne zadania algorytmiczne oraz operacje na plikach.
+* **Pliki źródłowe:** `function_a.py` – `function_j.py`, `helper_functions.py`
+* Zaimplementowano m.in. parser plików i narzędzia pomocnicze.
 
-### Wymagania wstępne
-Do uruchomienia projektów wymagany jest zainstalowany Python w wersji 3.x.
+### [Lista 3](./Lista%203) - Analiza i filtrowanie danych
+Zestaw narzędzi służących do przetwarzania, analizy i filtrowania danych.
+* **Główne moduły:**
+  * `analytics.py` – moduł odpowiedzialny za statystyki i analizę.
+  * `filters.py` – funkcje filtrujące zestawy danych.
+  * `parser.py` – przetwarzanie i formatowanie danych wejściowych.
+  * `main.py` – główny skrypt spinający funkcjonalności.
+
+### [Lista 4](./Lista%204) - Narzędzia systemowe i konsolowe
+Zadania skupiające się na integracji z systemem operacyjnym, operacjach na plikach i tworzeniu własnych narzędzi CLI (Command Line Interface).
+* **TailProject (`TailProject/tail.py`)** – własna, zoptymalizowana implementacja uniksowego narzędzia `tail` z obsługą flagi `--lines` oraz trybem śledzenia pliku `--follow`.
+* **MediaConverter (`MediaConverter/`)** – program do konwersji plików multimedialnych (`mediaconvert.py` oraz `utils.py`).
+* **Narzędzia systemowe:**
+  * `env_viewer.py` – przeglądarka i analizator zmiennych środowiskowych (w tym `PATH`).
+  * `file_stats.py` – program generujący zaawansowane statystyki plików tekstowych (liczba znaków, słów, wierszy, najczęstsze znaki i słowa).
+  * `path_explorer.py` – eksplorator i analizator ścieżek systemowych.
+  * `analyzer.py` – skrypt narzędziowy do analizy logów/danych.
+
+---
+
+## 🚀 Jak uruchomić
+
+Wszystkie skrypty zostały napisane w języku Python. Aby je uruchomić, przejdź do katalogu wybranej listy i uruchom odpowiedni plik z poziomu konsoli.
+
+Przykład uruchomienia narzędzia `tail` z Listy 4:
+```bash
+cd "Lista 4/src/TailProject"
+python tail.py --lines 15 sciezka_do_pliku.txt
