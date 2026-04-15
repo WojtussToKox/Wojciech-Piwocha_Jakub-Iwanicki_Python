@@ -34,7 +34,7 @@ def listExecutables():
 
     for d in dirs:
         if not d:
-            continue
+            continue # Pomijamy puste wpisy
         print(f"\nKatalog: {d}")
 
         if not os.path.isdir(d):

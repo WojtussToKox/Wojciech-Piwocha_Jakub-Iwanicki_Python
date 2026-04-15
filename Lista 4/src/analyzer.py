@@ -6,9 +6,27 @@ from collections import Counter
 
 # Wczytuje plik i zwraca słownik ze stat.
 def analyzeFile(filepath):
+    total_chars = 0
+    total_words = 0
+    total_lines = 0
+    char_counter = Counter()
+    word_counter = Counter()
+
     try:
         with open(filepath, "r", encoding="utf-8") as f:
-            content = f.read()
+            for line in f:  # Czytanie strumieniowe
+                total_lines += 1
+                total_chars += len(line)
+
+                # Podział na słowa dla bieżącej linii
+                words = line.split()
+                total_words += len(words)
+
+                # Zliczanie znaków w linii (bez białych znaków)
+                char_counter.update(ch for ch in line if not ch.isspace())
+
+                # Zliczanie słów w linii (z małych liter)
+                word_counter.update(w.lower() for w in words)
     except FileNotFoundError:
         print(f"Błąd: plik {filepath} nie istnieje", file=sys.stderr)
         sys.exit(1)
@@ -16,34 +34,16 @@ def analyzeFile(filepath):
         print(f"Błąd odczytu pliku: {e}", file=sys.stderr)
         sys.exit(1)
 
-    # len na stringu liczy znaki Unicode
-    total_chars = len(content)
-
-    # splitlines obsługuje różne zak. linii
-    lines = content.splitlines()
-    total_lines = len(lines)
-
-    words = content.split()
-    total_words = len(words)
-
-    # Counter zlicza wystąpienia każdego znaku
-    # most_common(1) zwraca listę [(znak, count)]
-    if content:
-        char_counter = Counter(ch for ch in content if not ch.isspace())
-        if char_counter:
-            most_common_char, most_common_char_count = char_counter.most_common(1)[0]
-        else:
-            most_common_char, most_common_char_count = "", 0
+    # Pobieranie najczęstszych wyników
+    if char_counter:
+        most_common_char, most_common_char_count = char_counter.most_common(1)[0]
     else:
-        most_common_char = ""
-        most_common_char_count = 0
+        most_common_char, most_common_char_count = "", 0
 
-    if words:
-        word_counter = Counter(w.lower() for w in words)
+    if word_counter:
         most_common_word, most_common_word_count = word_counter.most_common(1)[0]
     else:
-        most_common_word = ""
-        most_common_word_count = 0
+        most_common_word, most_common_word_count = "", 0
 
     return {
         "filepath": filepath,
@@ -58,15 +58,24 @@ def analyzeFile(filepath):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Analizuje statystycznie plik tekstowy. Czyta ścieżkę do pliku z stdin"
+        description="Analizuje statystycznie plik tekstowy. Czyta ścieżkę do pliku z stdin."
     )
     parser.parse_args()
 
-    filepath = input().strip()
+    # Wczytywanie ścieżki z wejścia standardowego (stdin)
+    try:
+        filepath = input().strip()
+        if not filepath:
+            print("Błąd: Oczekiwano ścieżki do pliku, ale wejście jest puste.", file=sys.stderr)
+            sys.exit(1)
+    except EOFError:
+        print("Błąd: Nie podano ścieżki do pliku z wejścia standardowego.", file=sys.stderr)
+        sys.exit(1)
+
     result = analyzeFile(filepath)
 
-    # ensure_ascii=False by polskie znaki nie były zamieniane
-    print(json.dumps(result, ensure_ascii=False))
+    # Zwrócenie wyniku jako JSON (ensure_ascii=False chroni polskie znaki)
+    print(json.dumps(result, ensure_ascii=False, indent=2))
 
 if __name__ == "__main__":
     main()

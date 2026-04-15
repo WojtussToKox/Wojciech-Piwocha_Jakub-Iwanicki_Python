@@ -15,6 +15,7 @@ def getTextFiles(directory):
     return sorted(text_files)
 
 def runAnalyzer(filepath):
+    # Odpala analyzer jako osobny proces
     result = subprocess.run(
         [sys.executable, os.path.join(os.path.dirname(__file__), "analyzer.py")],
         input=filepath,
@@ -28,7 +29,7 @@ def runAnalyzer(filepath):
         return None
 
     try:
-        return json.loads(result.stdout.strip())
+        return json.loads(result.stdout.strip()) # Zamienia JSON na słownik
     except json.JSONDecodeError as e:
         print(f"Błąd parsowania JSON dla {filepath}: {e}", file=sys.stderr)
         return None
