@@ -2,9 +2,15 @@ import argparse
 import random
 import statistics
 import sys
+import logging
 from datetime import datetime
 from pathlib import Path
 from Parser.parser import parse_measurements, parse_stations
+
+
+
+
+
 
 # Stałe
 DATA_DIR = Path('Lista 5/data')
@@ -17,6 +23,37 @@ VALID_INDICATORS = {
 
 VALID_FREQUENCES = {'1g', '24g'}
 
+
+# Filtr przepuszczający tylko logi niższe niż ERROR
+class StdOutFilter(logging.Filter):
+    def filter(self, record):
+        return record.levelno < logging.ERROR
+
+
+def setup_logger():
+    logger = logging.getLogger('AirQuality')
+    logger.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(levelname)s: %(message)s')
+
+    # Handler dla stdout (DEBUG, INFO, WARNING)
+    stdout_h = logging.StreamHandler(sys.stdout)
+    stdout_h.setLevel(logging.DEBUG)
+    stdout_h.addFilter(StdOutFilter())
+    stdout_h.setFormatter(formatter)
+
+    # Handler dla stderr (ERROR, CRITICAL)
+    stderr_h = logging.StreamHandler(sys.stderr)
+    stderr_h.setLevel(logging.ERROR)
+    stderr_h.setFormatter(formatter)
+
+    logger.addHandler(stdout_h)
+    logger.addHandler(stderr_h)
+    return logger
+
+
+logger = setup_logger()
+
+
 # Walidatory argumentów
 def parse_date(value: str) -> datetime:
     try:
@@ -26,6 +63,7 @@ def parse_date(value: str) -> datetime:
             f'Nieprawdiłowa data: "{value}". Wymagany format: RRRR-MM-DD'
         )
 
+
 def validate_indicator(value: str) -> str:
     if value not in VALID_INDICATORS:
         raise argparse.ArgumentTypeError(
@@ -33,6 +71,7 @@ def validate_indicator(value: str) -> str:
             f'Dozwolone: {", ".join(sorted(VALID_INDICATORS))}'
         )
     return value
+
 
 def validate_frequency(value: str) -> str:
     if value not in VALID_FREQUENCES:
@@ -42,28 +81,30 @@ def validate_frequency(value: str) -> str:
         )
     return value
 
+
 # Logika pomocnicza
 # Szukanie pliku pomiarowego CSV pasująxcego do wzorca
-def find_measurement_file(indicator:str, frequency: str) -> Path:
+def find_measurement_file(indicator: str, frequency: str) -> Path:
     meas_dir = DATA_DIR / 'measurements'
     if not meas_dir.exists():
-        print(f'Błąd: katalog z pomiarami nie istnieje: {meas_dir}', file=sys.stderr)
+        logger.error(f'Błąd krytyczny: katalog z pomiarami nie istnieje: {meas_dir}')
         sys.exit(1)
 
     candidates = list(meas_dir.glob(f'*{indicator}_{frequency}.csv'))
     if not candidates:
-        print(
+        logger.error(
             f'Błąd: brak pliku pomiarowego dla wielkości "{indicator}" '
-            f'i częstotliwości "{frequency}"', file=sys.stderr
+            f'i częstotliwości "{frequency}"'
         )
         sys.exit(1)
 
     return candidates[0]
 
+
 # Wczytuje plik pomiarowy i filtruje dane do zadanego przedziału czasowego
 def load_filtered_measurements(
-        indicator:str,
-        frequency:str,
+        indicator: str,
+        frequency: str,
         start: datetime,
         end: datetime,
 ) -> dict[str, list[float]]:
@@ -82,6 +123,7 @@ def load_filtered_measurements(
 
     return result
 
+
 # Wypisuje nazwe i adres losowej stacji mierzącej podaną wartość
 def cmd_random_station(args: argparse.Namespace) -> None:
     data = load_filtered_measurements(
@@ -89,12 +131,12 @@ def cmd_random_station(args: argparse.Namespace) -> None:
     )
 
     if not data:
-        print('Brak pomiarów dla podanych argumentów')
+        logger.warning('Brak pomiarów dla podanych argumentów')
         return
 
     stations_path = DATA_DIR / 'stacje.csv'
     if not stations_path.exists():
-        print(f'Błąd: plik stacji nie istnieje: {stations_path}', file=sys.stderr)
+        logger.error(f'Błąd: plik stacji nie istnieje: {stations_path}')
         sys.exit(1)
 
     stations = parse_stations(stations_path)
@@ -102,7 +144,7 @@ def cmd_random_station(args: argparse.Namespace) -> None:
     matched = [st for st in stations if st.station_code in available_codes]
 
     if not matched:
-        print(f'Nie znaleziono żadnej stacji mierzącej "{args.indicator}"')
+        logger.warning(f'Nie znaleziono żadnej stacji mierzącej "{args.indicator}"')
         return
 
     chosen = random.choice(matched)
@@ -113,6 +155,7 @@ def cmd_random_station(args: argparse.Namespace) -> None:
     print(f'  Adres:     {chosen.address}')
     print(f'  Województwo: {chosen.province}')
 
+
 # Podkomenda stats
 def cmd_stats(args: argparse.Namespace) -> None:
     data = load_filtered_measurements(
@@ -120,10 +163,7 @@ def cmd_stats(args: argparse.Namespace) -> None:
     )
 
     if args.station_code not in data:
-        print(
-            f'Brak pomiarów dla stacji "{args.station_code}" przy podanych parametrach',
-            file=sys.stderr
-        )
+        logger.warning(f'Brak pomiarów dla stacji "{args.station_code}" przy podanych parametrach')
         sys.exit(1)
 
     values = data[args.station_code]
@@ -144,7 +184,7 @@ def build_parser() -> argparse.ArgumentParser:
         prog='air_quality',
         description='Analiza pomiarów zanieczyszczeń powietrza (dane GIOŚ)',
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        )
+    )
 
     parser.add_argument(  # Zad. 5a-i – mierzona wielkość (PM2.5, PM10, NO, …)
         '-i', '--indicator',
@@ -178,7 +218,6 @@ def build_parser() -> argparse.ArgumentParser:
         help='Koniec przedziału czasowego (włącznie).'
     )
 
-
     subparsers = parser.add_subparsers(
         title='podkomendy',
         dest='command',
@@ -204,10 +243,12 @@ def build_parser() -> argparse.ArgumentParser:
 
     return parser
 
+
 def main():
     parser = build_parser()
     args = parser.parse_args()
     args.func(args)
+
 
 if __name__ == '__main__':
     main()
