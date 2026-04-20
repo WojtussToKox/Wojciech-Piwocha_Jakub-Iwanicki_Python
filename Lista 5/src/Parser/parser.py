@@ -87,7 +87,7 @@ def parse_stations(path: Path) -> list[Station]:
                 longitude = safe_float(clean_row.get('WGS84 λ E', ''))
             )
             stations.append(station)
-            
+
     logger.info(f"Zamknięto plik: {path}")
     return stations
 

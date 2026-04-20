@@ -124,6 +124,107 @@ def load_filtered_measurements(
     return result
 
 
+# Ładowanie surowych danych (zostawiamy daty i puste wartości None)
+def load_raw_measurements(
+        indicator: str,
+        frequency: str,
+        start: datetime,
+        end: datetime,
+) -> dict:
+    path = find_measurement_file(indicator, frequency)
+    mf = parse_measurements(path)
+
+    result = {}
+    for code, measurements in mf.data.items():
+        # Wypakowujemy pomiary, które mieszczą się w zadanym czasie.
+        # W odróżnieniu od zwykłego filtra, NIE usuwamy tu wartości 'None', bo brak prądu to też anomalia!
+        valid_time_measurements = [
+            m for m in measurements
+            if start <= m.timestamp <= end
+        ]
+        if valid_time_measurements:
+            result[code] = valid_time_measurements
+    return result
+
+
+# Funkcja z regułami analizującymi anomalie
+def detect_anomalies(measurements: list, indicator: str) -> list[str]:
+    anomalies = []
+    total_count = len(measurements)
+
+    if total_count == 0:
+        return ["Brak danych do analizy w podanym przedziale."]
+
+    none_count = 0
+    zero_count = 0
+    valid_m = []
+
+    # Progi alarmowe zależne od wielkości zanieczyszczenia
+    thresholds = {'PM10': 150, 'PM2.5': 100, 'NO2': 200, 'SO2': 350, 'O3': 180}
+    alarm_threshold = thresholds.get(indicator, 400) # Domyślny próg
+    max_delta = alarm_threshold * 0.6 # Skok o 60% progu w jednym odczycie to anomalia
+
+    for m in measurements:
+        if m.value is None:
+            none_count += 1
+            continue
+
+        # Reguła 1: Wartości ujemne (brak sensu fizycznego)
+        if m.value < 0:
+            anomalies.append(f"[{m.timestamp.date()} {m.timestamp.time()}] Ujemna wartość pomiaru: {m.value}")
+        elif m.value == 0:
+            zero_count += 1
+
+        # Reguła 2: Przekroczenie ekstremalnych progów
+        if m.value > alarm_threshold:
+            anomalies.append(f"[{m.timestamp.date()} {m.timestamp.time()}] Krytyczny alarm smogowy! Skrajna wartość: {m.value} (próg: {alarm_threshold})")
+
+        valid_m.append(m)
+
+    # Reguła 3: Zbyt wiele braków lub zer
+    if none_count / total_count > 0.2:
+        anomalies.append(f"Zbyt wiele braków danych: {(none_count/total_count)*100:.1f}% odczytów to puste wartości.")
+
+    if total_count > 0 and zero_count / total_count > 0.3:
+        anomalies.append(f"Podejrzanie dużo wartości idealnie zerowych ({(zero_count/total_count)*100:.1f}%).")
+
+    # Reguła 4: Podejrzane nagłe skoki (delta)
+    valid_m.sort(key=lambda x: x.timestamp)
+    for i in range(1, len(valid_m)):
+        prev = valid_m[i-1]
+        curr = valid_m[i]
+
+        delta = abs(curr.value - prev.value)
+        if delta > max_delta:
+            anomalies.append(f"[{curr.timestamp.date()} {curr.timestamp.time()}] Nagły, podejrzany skok wartości o {delta:.1f} względem poprzedniego odczytu.")
+
+    return anomalies
+
+
+# Krok 3: Podkomenda działająca z CLI
+def cmd_anomalies(args: argparse.Namespace) -> None:
+    data = load_raw_measurements(
+        args.indicator, args.frequency, args.start, args.end
+    )
+
+    if args.station_code not in data:
+        logger.warning(f'Brak pomiarów dla stacji "{args.station_code}" przy podanych parametrach')
+        sys.exit(1)
+
+    measurements = data[args.station_code]
+    print(f"\n--- Diagnostyka anomalii dla stacji: {args.station_code} ---")
+    print(f"Badany wskaźnik: {args.indicator} | Analizowany przedział: {args.start.date()} do {args.end.date()}")
+
+    anomalies = detect_anomalies(measurements, args.indicator)
+
+    if not anomalies:
+        print(" Nie wykryto żadnych anomalii. Dane z czujnika wydają się być wiarygodne i stabilne.")
+    else:
+        print(f"️ Wykryto potencjalne błędy i anomalie ({len(anomalies)}):")
+        for a in anomalies:
+            print(f"  - {a}")
+
+
 # Wypisuje nazwe i adres losowej stacji mierzącej podaną wartość
 def cmd_random_station(args: argparse.Namespace) -> None:
     data = load_filtered_measurements(
@@ -240,6 +341,18 @@ def build_parser() -> argparse.ArgumentParser:
         help='Kod stacji pomiarowej, np. MzKatowiceROŚKatowice.',
     )
     sp_stats.set_defaults(func=cmd_stats)
+
+    # Zadanie na max pkt - podkomenda: anomalie
+    sp_anomalies = subparsers.add_parser(
+        'anomalies',
+        help='Analizuje dane stacji w poszukiwaniu błędów czujnika i nagłych skoków smogu.',
+    )
+    sp_anomalies.add_argument(
+        'station_code',
+        metavar='KOD_STACJI',
+        help='Kod stacji pomiarowej do zdiagnozowania.',
+    )
+    sp_anomalies.set_defaults(func=cmd_anomalies)
 
     return parser
 
