@@ -360,6 +360,9 @@ def build_parser() -> argparse.ArgumentParser:
 def main():
     parser = build_parser()
     args = parser.parse_args()
+    if args.start > args.end:
+        parser.error('Data początkowa nie może być późniejsza niż data końcowa.')
+
     args.func(args)
 
 
