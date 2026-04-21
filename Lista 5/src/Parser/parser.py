@@ -63,6 +63,8 @@ def parse_stations(path: Path) -> list[Station]:
         for line in lines:
             logger.debug(f"Przeczytano {len(line.encode('utf-8'))} bajtów")  # Zadanie 6a
 
+        f.seek(0)
+        
         reader = csv.DictReader(f)
         for row in reader:
             # Klucze mogą zawierać białe znaki
@@ -98,6 +100,8 @@ def parse_measurements(path: Path) -> MeasurementFile:
         # Zadanie 6a: logowanie liczby bajtów wiersza
         for line in f:
             logger.debug(f"Przeczytano {len(line.encode('utf-8'))} bajtów")
+        
+        f.seek(0)
         reader = list(csv.reader(f))
 
     station_codes = [c.strip() for c in reader[1][1:] if c.strip()]
