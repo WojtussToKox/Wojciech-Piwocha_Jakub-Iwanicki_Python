@@ -2,8 +2,9 @@ from typing import NamedTuple
 from datetime import datetime
 from pathlib import Path
 import csv
+import logging
 
-
+logger = logging.getLogger('AirQuality')
 MEASUREMENT_DATE_FORMAT = '%d/%m/%y %H:%M'
 MIN_HEADER_ROWS = 6
 
@@ -54,7 +55,14 @@ def safe_float(value: str) -> float | None:
 def parse_stations(path: Path) -> list[Station]:
     stations: list[Station] = []
 
+    logger.info(f"Otwarto plik: {path}")
+
     with open(path, newline='', encoding='utf-8-sig') as f:
+
+        lines = f.readlines()
+        for line in lines:
+            logger.debug(f"Przeczytano {len(line.encode('utf-8'))} bajtów")  # Zadanie 6a
+
         reader = csv.DictReader(f)
         for row in reader:
             # Klucze mogą zawierać białe znaki
@@ -79,12 +87,17 @@ def parse_stations(path: Path) -> list[Station]:
                 longitude = safe_float(clean_row.get('WGS84 λ E', ''))
             )
             stations.append(station)
-
+            
+    logger.info(f"Zamknięto plik: {path}")
     return stations
 
 
 def parse_measurements(path: Path) -> MeasurementFile:
+    logger.info(f"Otwarto plik: {path}") # Zadanie 6b
     with open(path, newline='', encoding='utf-8-sig') as f:
+        # Zadanie 6a: logowanie liczby bajtów wiersza
+        for line in f:
+            logger.debug(f"Przeczytano {len(line.encode('utf-8'))} bajtów")
         reader = list(csv.reader(f))
 
     station_codes = [c.strip() for c in reader[1][1:] if c.strip()]
@@ -109,7 +122,7 @@ def parse_measurements(path: Path) -> MeasurementFile:
             measurements_data[station_code].append(
                 Measurement(timestamp=timestamp, value=safe_float(val))
             )
-
+    logger.info(f"Zamknięto plik: {path}")  # Zadanie 6b
     return MeasurementFile(indicator, averaging_time, unit, measurements_data)
 
 
