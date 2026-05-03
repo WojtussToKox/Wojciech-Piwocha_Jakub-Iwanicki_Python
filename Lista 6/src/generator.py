@@ -1,7 +1,7 @@
 from typing import Callable, Generator, Any
 from functools import cache
 
-def make_generator(f):
+def make_generator(f: Callable[[int], Any]) -> Generator[Any, None, None]:
     def generator():
         n = 1
         while True:
